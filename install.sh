@@ -20,12 +20,12 @@ if [ "$DEVICE" ]; then
         awk -F ":" '{ print toupper($1) }')&PID_$(echo $num | \
         awk -F ":" '{ print toupper($2) }')" | \
         awk -F "[=,]" 'NF>2 { print $2 }';)
-    
+
     for firmware in $firmwares; do
         echo "Find firmware $firmware"
         file_found=false
         firmware_file=$(cat $TMP_DIR/$INFO_FILE | \
-            grep -A 4 "\[$firmware.CopyList\]" | grep .hex)
+            grep -A 4 "\[$firmware.CopyList\]" | grep .hex | tr '\r' ' ')
 
         if [ "$firmware_file" ]; then
             file_found=true
@@ -37,7 +37,7 @@ if [ "$DEVICE" ]; then
         if [ $file_found == true ]; then
             git clone git://github.com/jessesung/hex2hcd.git $TMP_DIR/hex2hcd
             make -C $TMP_DIR/hex2hcd
-            $TMP_DIR/hex2hcd/hex2hcd $TMP_DIR/Win64/$firmware_file $OUTPUT_FILE 
+            $TMP_DIR/hex2hcd/hex2hcd $TMP_DIR/Win64/$firmware_file $OUTPUT_FILE
 
             if [ $(uname -r | awk -F "." ' { print $1$2 }') -gt 47 ]; then
                 mv -v $OUTPUT_FILE $TMP_DIR/BCM-$(echo $num | \
